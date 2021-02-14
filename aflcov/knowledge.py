@@ -23,7 +23,7 @@ class Coverage(KnowledgeBasePlugin, dict):
         self._nr_of_paths += 1
         if nodes_hit:
             for addr in nodes_hit:
-                self.register_node_hit(addr)
+                self.register_node_hit(addr - 0x0000004000000000 + 0x400000)
 
     def register_node_hit(self, addr):
         self._nodes_hit[addr] += 1

@@ -3,12 +3,12 @@ logging.getLogger('angr.analyses').setLevel(logging.INFO)
 
 from cfgexplorer import CFGExplorerCLI
 
-import knowledge
-import analysis
+from . import knowledge
+from . import analysis
 
 from cfgexplorer import CFGVisEndpoint
 from bingraphvis import ColorNodes
-from vis import AflCovInfo
+from .vis import AflCovInfo
 
 class AflCFGVisEndpoint(CFGVisEndpoint):
     def __init__(self, cfg):
