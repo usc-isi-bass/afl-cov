@@ -6,37 +6,40 @@ class Coverage(KnowledgeBasePlugin, dict):
     def __init__(self, kb):
         super(Coverage, self).__init__()
         self._kb = kb
-        self._nr_of_paths = 0
-        self._nodes_hit = defaultdict(int)
 
-        self.nodes_cov_partial = set()
-        self.nodes_cov_full = set()
+        self.pre_nodes = set()
+        self.succ_nodes = set()
+        self.target_nodes = set()
 
     def copy(self):
         o = IndirectJumps(self._kb)
-        o._nr_of_paths = self._nr_of_paths
-        o._nodes_hit = _nodes_hit.copy()
-        o.nodes_cov_partial.update(self.nodes_cov_partial)
-        o.nodes_cov_full.update(self.nodes_cov_full)
+
+        o.pre_nodes.update(self.pre_nodes)
+        o.succ_nodes.update(self.succ_nodes)
+        o.target_nodes.update(self.target_nodes)
         
-    def register_new_path(self, nodes_hit=None):
-        self._nr_of_paths += 1
-        if nodes_hit:
-            for addr in nodes_hit:
-                self.register_node_hit(addr - 0x0000004000000000 + 0x400000)
 
-    def register_node_hit(self, addr):
-        self._nodes_hit[addr] += 1
+    def register_pre_blocks(self, nodes=[]):
+        for addr in nodes:
+            self.pre_nodes.add(addr)
 
-    def node_hit_count(self, addr):
-        return self._nodes_hit[addr]
-    
-    @property
-    def nr_of_paths(self):
-        return self._nr_of_paths
-    
-    @property
-    def nodes_hit(self):
-        return len(self._nodes_hit)
+    def register_succ_blocks(self, nodes=[]):
+        for addr in nodes:
+            self.succ_nodes.add(addr)
+
+    def register_target_blocks(self, nodes=[]):
+        for addr in nodes:
+            self.target_nodes.add(addr)
+
+    def target_pre_or_succ(self, addr):
+        if addr in self.pre_nodes:
+            return "Pre"
+        elif addr in self.succ_nodes:
+            return "Succ"
+        elif addr in self.target_nodes:
+            return "Target"
+        else:
+            return "-"
+
 
 KnowledgeBasePlugin.register_default('cov', Coverage)

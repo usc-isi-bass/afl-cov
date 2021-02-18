@@ -4,46 +4,65 @@ l = logging.getLogger('angr.analyses.axt.aflcoverage')
 
 import os
 from angr.analyses import Analysis, register_analysis
-import tracer
 
-class LightTracer(tracer.Tracer):
-    def _prepare_paths(self):
-        pass
+def get_target_pred_succ_nodes(proj, cfg, target_name):
+    pred_nodes = {}
+    t_name = target_name 
+    t_addr = proj.loader.find_symbol(t_name).rebased_addr
+    t_node = None
+    for node in cfg.graph.nodes():
+        if node.block.addr == t_addr:
+            t_node = node
+            break
+
+    # Put all predessors into pred_nodes
+    predecessors = t_node.predecessors
+    while len(predecessors) != 0:
+        new_predecessors = []
+        for node in predecessors:
+            if node.block.addr in pred_nodes or node == t_node:
+                continue
+            pred_nodes[node.block.addr] = node
+            for pre_node in node.predecessors:
+                if pre_node.block is not None and pre_node.block.addr not in pred_nodes:
+                    new_predecessors.append(pre_node)
+        predecessors = new_predecessors
+
+    succ_nodes = {}
+    successors = t_node.successors
+    while len(successors) != 0:
+        new_successors = []
+        for node in successors:
+            if node.block.addr in succ_nodes:
+                continue
+            succ_nodes[node.block.addr] = node
+            for succ_node in node.successors:
+                if succ_node.block is not None and succ_node.block.addr not in succ_nodes:
+                    new_successors.append(succ_node)
+        successors = new_successors
+
+    target_nodes = {}
+    target_nodes[t_node.addr] = t_node
+    return target_nodes, pred_nodes, succ_nodes
+
 
 class AflCoverage(Analysis):
-    def __init__(self, cfg, afl_queue_path, max_samples=None):
+    def __init__(self, cfg, target_func):
         super(AflCoverage, self).__init__()
         self.cfg = cfg
-        self.afl_queue_path = afl_queue_path
-        self.max_samples = max_samples
-        self.nodes_cov_partial = set()
-        self.nodes_cov_full = set()
+        self.target_func = target_func
         self._analyse()
 
     def _analyse(self):
-        queue_files = os.listdir(self.afl_queue_path)
         kb = self.project.kb
-        for i, f in enumerate(queue_files):
-            binary = self.project.filename
-            argv = [ binary, self.afl_queue_path + "/" + f]
-            t = LightTracer(project=self.project, binary=binary,  input=b'', argv=argv)
-            kb.cov.register_new_path(set(t.r.trace))
-            l.info("Processing [%d/%d] %s, blocks hit: %d" % (i+1, len(queue_files), f, kb.cov.nodes_hit))
-            if self.max_samples and i+1 >= self.max_samples:
-                break
 
-        for pnode in self.cfg.nodes():
-            if kb.cov.node_hit_count(pnode.addr) == 0:
-                continue
-            partial = False
-            for node in self.cfg.get_all_nodes(pnode.addr):
-                for succ in self.cfg.graph.successors(node):
-                    if kb.cov.node_hit_count(succ.addr) == 0:
-                        partial = True
-                        break
-            if partial:
-                kb.cov.nodes_cov_partial.add(node.addr)
-            else:
-                kb.cov.nodes_cov_full.add(node.addr)
+        target_addr, pre_blocks, succ_blocks = get_target_pred_succ_nodes(self.project, self.cfg, self.target_func)
+
+        # TODO
+        kb.cov.register_target_blocks(target_addr)
+        kb.cov.register_pre_blocks(pre_blocks)
+        kb.cov.register_succ_blocks(succ_blocks)
+
 
 register_analysis(AflCoverage, 'AflCoverage')
+

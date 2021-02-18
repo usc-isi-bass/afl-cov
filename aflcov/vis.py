@@ -10,7 +10,7 @@ class AflCovInfo(Content):
         n.content[self.name] = {
             'data': [{
                 'text': {
-                    'content': "Hit: %d / %d " % (self.project.kb.cov.node_hit_count(node.addr), self.project.kb.cov.nr_of_paths),
+                    'content': "Type: %s" % (self.project.kb.cov.target_pre_or_succ(node.addr)),
                     'style':'B',
                     'align':'LEFT'
                 }
