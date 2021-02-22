@@ -7,10 +7,10 @@ except ImportError:
     packages = [x.strip('./').replace('/','.') for x in os.popen('find -name "__init__.py" | xargs -n1 dirname').read().strip().split('\n')]
 
 setup(
-    name='afl-cov',
+    name='trimafl-cov',
     version='0.0.1',
-    author='Attila Axt',
-    author_email='axt@load.hu',
+    author='Wei-Cheng Wu',
+    author_email='wwu@isi.edu',
     license='BSD',
     platforms=['Linux'],
     packages=packages,
@@ -20,7 +20,7 @@ setup(
         'bingraphvis',
         'cfg-explorer'
     ],
-    description='AFL fuzzing coverage CFG visualization',
-    long_description='AFL fuzzing coverage CFG visualization',
-    url='https://github.com/axt/afl-cov',
+    description='trimAFL visualization',
+    long_description='trimAFL CFG visualization',
+    url='https://github.com/usc-isi-bass/afl-cov',
 )
