@@ -29,16 +29,14 @@ class AflCovCFGExplorerCLI(CFGExplorerCLI):
 
     def _extend_parser(self):
         self.parser.add_argument('target', metavar='target', type=str, help='target <function name/angr rebased addr>')
-        self.parser.add_argument('-r', help='rewrite', action='store_true', dest="rewrite", default=False)
 
     def _postprocess_cfg(self):
         target = self.args.target
-        rewrite = self.args.rewrite
         if target.startswith("0x"):
             target_addr = int(target.split("0x", 1)[1], 16)
-            self.project.analyses.AflCoverage(self.args.binary, self.cfg, target_addr, True, rewrite)
+            self.project.analyses.AflCoverage(self.args.binary, self.cfg, target_addr, True)
         else:
-            self.project.analyses.AflCoverage(self.args.binary, self.cfg, target, False, rewrite)
+            self.project.analyses.AflCoverage(self.args.binary, self.cfg, target, False)
 
     def add_endpoints(self):
         self.app.add_vis_endpoint(AflCFGVisEndpoint(self.cfg))

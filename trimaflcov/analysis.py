@@ -11,6 +11,7 @@ class AflCoverage(Analysis):
     def __init__(self, binary, cfg, target, is_addr=False, rewrite=False):
         super(AflCoverage, self).__init__()
         self.cfg = cfg
+        self.cg = cfg.functions.callgraph
         if not is_addr:
             if target == "-":
                 return 
@@ -31,7 +32,7 @@ class AflCoverage(Analysis):
     def _analyse(self):
         kb = self.project.kb
 
-        target_blocks, pre_blocks, succ_blocks, trim_blocks = trim_analysis.get_target_pred_succ_trim_nodes(self.project, self.cfg, [self.target_addr])
+        target_blocks, pre_blocks, succ_blocks, trim_blocks = trim_analysis.get_target_pred_succ_trim_nodes(self.project, self.cfg, self.cg, [self.target_addr])
 
         # TODO
         kb.cov.register_target_blocks(target_blocks)
