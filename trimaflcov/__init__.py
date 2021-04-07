@@ -17,7 +17,8 @@ class AflCFGVisEndpoint(CFGVisEndpoint):
     def annotate_vis(self, vis, addr):
         kb = self.cfg.project.kb
         vis.add_node_annotator(ColorNodes(filter=lambda node: node.obj.addr in kb.cov.pre_addrs, fillcolor='lightblue'))
-        vis.add_node_annotator(ColorNodes(filter=lambda node: node.obj.addr in kb.cov.succ_addrs, fillcolor='orchid'))
+        vis.add_node_annotator(ColorNodes(filter=lambda node: node.obj.addr in kb.cov.succ_addrs, fillcolor='violet'))
+        vis.add_node_annotator(ColorNodes(filter=lambda node: node.obj.addr in kb.cov.both_addrs, fillcolor='lightgray'))
         vis.add_node_annotator(ColorNodes(filter=lambda node: node.obj.addr in kb.cov.target_addrs, fillcolor='salmon'))
         vis.add_node_annotator(ColorNodes(filter=lambda node: node.obj.addr in kb.cov.trim_addrs, fillcolor='lightgreen'))
         vis.add_content(AflCovInfo(self.cfg.project))

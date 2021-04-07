@@ -34,10 +34,20 @@ class AflCoverage(Analysis):
 
         target_blocks, pre_blocks, succ_blocks, trim_blocks = trim_analysis.get_target_pred_succ_trim_nodes(self.project, self.cfg, self.cg, [self.target_addr])
 
+        both_addrs = set()
+        keys = [k for k in pre_blocks.keys()]
+        for addr in keys:
+            if addr in pre_blocks and addr in succ_blocks:
+                both_addrs.add(addr)
+                pre_blocks.pop(addr)
+                succ_blocks.pop(addr)
+
+
         # TODO
-        kb.cov.register_target_blocks(target_blocks)
-        kb.cov.register_pre_blocks(pre_blocks)
         kb.cov.register_succ_blocks(succ_blocks)
+        kb.cov.register_pre_blocks(pre_blocks)
+        kb.cov.register_both_blocks(both_addrs)
+        kb.cov.register_target_blocks(target_blocks)
         kb.cov.register_trim_blocks(trim_blocks)
 
 

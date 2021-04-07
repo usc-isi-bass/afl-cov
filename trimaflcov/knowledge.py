@@ -9,6 +9,7 @@ class Coverage(KnowledgeBasePlugin, dict):
 
         self.pre_addrs = set()
         self.succ_addrs = set()
+        self.both_addrs = set()
         self.target_addrs = set()
         self.trim_addrs = set()
 
@@ -17,6 +18,7 @@ class Coverage(KnowledgeBasePlugin, dict):
 
         o.pre_addrs.update(self.pre_addrs)
         o.succ_addrs.update(self.succ_addrs)
+        o.both_addrs.update(self.both_addrs)
         o.target_addrs.update(self.target_addrs)
         o.trim_addrs.update(self.trim_addrs)
         
@@ -28,6 +30,10 @@ class Coverage(KnowledgeBasePlugin, dict):
     def register_succ_blocks(self, addrs={}):
         for addr in addrs:
             self.succ_addrs.add(addr)
+
+    def register_both_blocks(self, addrs={}):
+        for addr in addrs:
+            self.both_addrs.add(addr)
 
     def register_target_blocks(self, addrs={}):
         for addr in addrs:
